@@ -28,6 +28,8 @@ export const tasksReducer = (tasks: Task[], action: TaskReducerAction) => {
       });
     case "add":
       return [action.payload.task, ...tasks];
+    case "set_initial_tasks":
+      return action.payload.tasks;
 
     default:
       return tasks;
@@ -37,4 +39,5 @@ export const tasksReducer = (tasks: Task[], action: TaskReducerAction) => {
 export type TaskReducerAction =
   | { type: "check"; payload: { title: string } }
   | { type: "uncheck"; payload: { title: string } }
-  | { type: "add"; payload: { task: Task } };
+  | { type: "add"; payload: { task: Task } }
+  | { type: "set_initial_tasks"; payload: { tasks: Task[] } };

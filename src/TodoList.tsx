@@ -2,10 +2,39 @@ import { AddTask } from "@/AddTask";
 import { tasksReducer } from "@/taskReducer";
 import { TaskRow } from "@/TaskRow";
 import { Task } from "@/types/task";
-import { useReducer } from "react";
+import { useEffect, useReducer } from "react";
 
-export const TodoList = ({ initialTasks }: { initialTasks: Task[] }) => {
-  const [tasks, dispatch] = useReducer(tasksReducer, initialTasks);
+function getTasksInLocalStorage(): Task[] {
+  const storedTasks = localStorage.getItem("tasks");
+  if (storedTasks === null) {
+    return [];
+  }
+  try {
+    // Add basic error handling for invalid JSON
+    const parsedTasks = JSON.parse(storedTasks);
+    // Optional: Add validation to ensure it's an array of Task objects
+    if (Array.isArray(parsedTasks)) {
+      return parsedTasks;
+    }
+  } catch (error) {
+    console.error("Failed to parse tasks from localStorage:", error);
+  }
+  return [];
+}
+
+export const TodoList = () => {
+  const [tasks, dispatch] = useReducer(tasksReducer, []);
+
+  useEffect(() => {
+    const loadedTasks = getTasksInLocalStorage();
+    dispatch({ type: "set_initial_tasks", payload: { tasks: loadedTasks } });
+  }, []);
+
+  useEffect(() => {
+    if (tasks.length > 0 || localStorage.getItem("tasks") !== null) {
+      localStorage.setItem("tasks", JSON.stringify(tasks));
+    }
+  }, [tasks]);
 
   const rows = tasks.map((task) => (
     <TaskRow
